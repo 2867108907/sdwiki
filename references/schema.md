@@ -17,7 +17,8 @@ Vault 采用三层架构：
 Vault/
 ├── raw/           # 原始资料层（只读）
 ├── wiki/          # 知识层（LLM 维护）
-└── output/        # 输出产物（编译报告/可视化/幻灯片，可选）
+├── schema/        # 提示词工作流规范
+└── output/        # 输出产物（编译报告/可视化/幻灯片）
 ```
 
 > **说明**：SDWiki skill 本身已经**内置了 schema 层**（结构规范和工作流程定义），用户的知识库 vault 不需要 `schema/` 目录。
@@ -91,6 +92,7 @@ title: 页面标题
 type: concept|entity|data|note|comparison|synthesis|case|index|log
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+confidence: high|medium|low  # 置信度（可选，基于单一来源=low，多来源一致=high）
 source: 原始来源（可选）
 tags:
   - tag1

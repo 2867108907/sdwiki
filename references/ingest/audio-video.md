@@ -6,24 +6,19 @@ description: 结构化知识库（obsidian + karpathy）操作工具，作为摄
 # 音频视频类知识摄取指南
 ## 前置处理
 
-音频视频文件无法直接读取，必须先由用户通过外部工具转为文本。推荐使用 OpenAI Whisper 进行语音转文字：
+音频视频文件需要通过预处理脚本转为文本，再进入后续摄取流程。
 
-**依赖安装：**
-```bash
-pip install openai-whisper
-```
+**自动预处理：**
 
-**转换示例：**
-```bash
-# 转换音频
-whisper raw/your-podcast.mp3 --model base --language zh --output_format txt --output_dir raw/extracted/
+执行 `./scripts/extract-audio.py <input> raw/extracted/<name>.txt`
 
-# 提取音频后转换视频
-ffmpeg -i raw/your-talk.mp4 -vn -acodec copy raw/extracted/audio.aac
-whisper raw/extracted/audio.aac --model base --language zh --output_format txt --output_dir raw/extracted/
-```
+该脚本会自动检查并安装 `openai-whisper` 和 `ffmpeg`（如缺失），使用 OpenAI Whisper 将语音/视频转为带时间戳的文本。转换结果输出到 `raw/extracted/` 目录。
 
-转换完成后，得到 `.txt` 文件，再按文本类流程摄取。
+支持的格式：`.mp3` `.wav` `.mp4` `.mov` `.avi` `.mkv` 等。
+
+脚本执行完成后，读取 `raw/extracted/<name>.txt` 中的转录文本，再按下方第1步继续处理。
+
+**注意：** Whisper 模型首次下载较大（base 模型约 142MB），处理长视频也较耗时。在执行脚本前告知用户预计等待时间。如需指定语言或模型大小，可使用脚本的 `--language zh` 和 `--model base` 参数。
 
 ## 第1步：理解转录文本内容
 
@@ -40,7 +35,8 @@ whisper raw/extracted/audio.aac --model base --language zh --output_format txt -
 
 ### 如果知识文章尚不存在
 
-在`wiki/`下创建单一知识文章，结构如下：
+向用户展示已有知识文章的路径，询问是否创建新文件：
+    - 若用户要求创建新文件，则在`wiki/`下创建单一知识文章，结构如下：
 - **来源信息**（页面顶部）
   - 原始标题、讲者、活动名称、日期/URL
   - 类型（播客/讲座/访谈/TED/课程）
@@ -60,7 +56,10 @@ whisper raw/extracted/audio.aac --model base --language zh --output_format txt -
   - 标注哪些是讲者观点，哪些是补充
 
 ### 如果知识文章已存在：
-- 补充新的观点和信息到现有文章
-- 将新来源添加到frontmatter字段
-- 添加发现的任何新连接
-- 保留现有内容 —— 添加到它，不要替换它
+- 向用户展示路径询问用户是否要创建新文件
+    - 若要求创建新文件，则创建单一知识文章同上述操作
+    - 若要求更新
+        - 补充新的观点和信息到现有文章
+        - 将新来源添加到frontmatter字段
+        - 添加发现的任何新连接
+        - 保留现有内容 —— 添加到它，不要替换它
