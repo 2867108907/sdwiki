@@ -23,10 +23,10 @@ SDWiki 遵循 Andrej Karpathy 的 LLM wiki 理念，采用 Obsidian 作为编辑
 按命令类型加载对应参考文件并执行：
 - **摄取**：`/sdwiki ingest <文档>` 或 `知识库：摄取 <文档描述>`  
   → 必须先读取 `references/ingest.md`，然后按工作流执行
-  → 根据文档类型自动加载 `references/ingest/{text|data|image}.md` 进一步处理
+  → 根据文档类型自动加载 `references/ingest/{text|data|image|audio-video}.md` 进一步处理
 
 - **查询**：`/sdwiki query <问题>` 或 `知识库：查询 <查询内容>`  
-  → 必须先读取 `references/query.md`，然后按工作流执行
+  → 按`ingest.md`的工作流执行
   → **强制**：必须先读 `wiki/index.md` 找相关文章，再逐个读取文章内容，才能回答
   → **禁止**：禁止不读文件直接凭记忆/全局搜索回答
 
@@ -46,19 +46,18 @@ SDWiki 遵循 Andrej Karpathy 的 LLM wiki 理念，采用 Obsidian 作为编辑
 
 本技能内置完整的 schema 规范作为参考，使用时加载对应的参考文件：
 
-| 功能 | 参考文件 | 说明 |
-|------|----------|------|
-| 初始化 | [references/init.md](references/init.md) | 在当前目录初始化知识库结构 |
-| 体系结构 | [references/schema.md](references/schema.md) | 整体知识库结构定义 |
+| 功能   | 参考文件                                         | 说明                  |
+| ---- | -------------------------------------------- | ------------------- |
+| 初始化  | [references/init.md](references/init.md)     | 在当前目录初始化知识库结构       |
+| 体系结构 | [references/schema.md](references/schema.md) | 整体知识库结构定义           |
 | 内容摄取 | [references/ingest.md](references/ingest.md) | 从 raw 层摄取转换到 wiki 层 |
-| 知识查询 | [references/query.md](references/query.md) | 查询知识库内容 |
-| 检查整理 | [references/check.md](references/check.md) | 检查知识完整性和连接 |
+| 知识查询 | [references/query.md](references/query.md)   | 查询知识库内容             |
+| 检查整理 | [references/check.md](references/check.md)   | 检查知识完整性和连接          |
 
 ## 脚本目录
 
 `scripts/` 存放二进制文件预处理抽取脚本：
 
-- `extract-pdf.sh` - 提取 PDF 文本
 - `extract-docx.py` - 提取 Word 文本
 - `extract-pptx.py` - 提取 PowerPoint 文本
 - `extract-excel.py` - 提取 Excel/CSV 表格数据

@@ -33,7 +33,7 @@ Vault/
 
 ### 2. Wiki 层（知识库）
 - 存放 LLM 生成和维护的 Markdown 文件
-- 文件类型：
+- 文件类型定义：
   - **概念页**：解释特定概念、技术、方法、原理
   - **实体页**：人物、项目、公司、产品、工具、框架
   - **数据页**：数据集、统计数据、指标定义、数据结论、报表解读
@@ -92,7 +92,6 @@ title: 页面标题
 type: concept|entity|data|note|comparison|synthesis|case|index|log
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-confidence: high|medium|low  # 置信度（可选，基于单一来源=low，多来源一致=high）
 source: 原始来源（可选）
 tags:
   - tag1

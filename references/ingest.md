@@ -25,20 +25,19 @@ description: 结构化知识库（obsidian + karpathy）操作工具，作为摄
 
 ### 第2步：识别源材料类型，根据文档类型调用对应处理规范
 
-| 分类 | 包含文件/内容类型 | 预处理 | 参考 |
+| 分类 | 文件类型 | 处理方式 | 参考 |
 | ---- | ---- | ---- | ---- |
-| 文本知识类 | `.md` `.txt` 网页文章、博客 | 直接读取 | `ingest/text.md` |
-| 文本知识类（二进制） | `.pdf` 论文/书籍 | **自动运行预处理脚本**：执行 `./scripts/extract-pdf.sh input.pdf raw/extracted/name.txt` 然后读取 | `ingest/text.md` |
-| 文本知识类（二进制） | `.docx` Word文档 | **自动运行预处理脚本**：执行 `./scripts/extract-docx.py input.docx raw/extracted/name.txt` 然后读取 | `ingest/text.md` |
-| 文本知识类（二进制） | `.pptx` PowerPoint 幻灯片 | **自动运行预处理脚本**：执行 `./scripts/extract-pptx.py input.pptx raw/extracted/name.txt` 然后读取 | `ingest/text.md` |
-| 数据表格类 | `.xlsx` `.xls` `.csv` Excel/CSV/数据集 | **自动运行预处理脚本**：执行 `./scripts/extract-excel.py input.xlsx raw/extracted/name/` 然后读取提取的 CSV | `ingest/data.md` |
-| 图像/信息图类 | 信息图、流程图、思维导图、手绘笔记、照片扫描件 | 需要 OCR，请用户确认已提取文字后继续 | `ingest/image.md` |
-| 音频/视频类（二进制） | `.mp3` `.wav` `.mp4` `.mov` 播客/讲座/访谈 | **自动运行预处理脚本**：执行 `./scripts/extract-audio.py input.mp3 raw/extracted/name.txt` 然后读取 | `ingest/audio-video.md` |
+| 文本类 | `.md` `.txt` 网页文章、博客 | 直接读取 | `ingest/text.md` |
+| PDF | `.pdf` 论文/书籍 | **直接读取**（LLM 原生支持 PDF，可指定页码范围） | `ingest/text.md` |
+| 图像/信息图 | `.png` `.jpg` `.jpeg` 信息图、流程图、思维导图、手绘笔记、扫描件 | **直接读取**（LLM 多模态视觉能力，无需 OCR） | `ingest/image.md` |
+| Word（二进制） | `.docx` | 运行 `./scripts/extract-docx.py <文件>` 输出到 stdout 读取 | `ingest/text.md` |
+| PPT（二进制） | `.pptx` | 运行 `./scripts/extract-pptx.py <文件>` 输出到 stdout 读取 | `ingest/text.md` |
+| Excel/数据 | `.xlsx` `.xls` `.csv` | 运行 `./scripts/extract-excel.py <文件>` 输出到 stdout 读取 | `ingest/data.md` |
+| 音频/视频 | `.mp3` `.wav` `.mp4` `.mov` | 运行 `./scripts/extract-audio.py <文件>` 输出到 stdout 读取 | `ingest/audio-video.md` |
 
-**脚本说明：**
-- 预处理脚本放在 skill 的 `scripts/` 目录
-- 提取结果自动输出到 `raw/extracted/` 目录，保留原始文件
-- Agent 执行脚本后，读取提取出的文本/CSV，再进行结构化处理
+**说明：**
+- PDF 和图像由 LLM 直接读取
+- Word/PPT/Excel/音视频需运行对应脚本将内容转为可读文本，LLM 读取后直接生成 wiki 页面
 
 ---
 
@@ -61,7 +60,7 @@ tags:
 
 确保您创建或更新的每篇文章开头都有：
 - frontmatter
-- 使用 [[目标文章标题]] 语法建立双向链接。
+- 先搜索 index 找匹配目标文章，使用 [[目标文章标题]] 语法建立双向链接。
 - 指向原始来源或相关文档时，同样使用 [[...]] 包裹。
 - 对于相互关联的概念，应同时在本篇文章和对应文章中补充引用链接。
 
@@ -70,15 +69,18 @@ tags:
 
 #### 更新 `wiki/index.md`：
 
-##### 确定文章所属主题，按主题添加条目
-- 在 `## 按主题分类` 下找到对应主题子节（如 `### 机器学习`）。
-   - 若该主题子节不存在，则新建一个。
-   - 在每个主题子节下维护一个表格，表格列头为：`| 页面 | 类型 | 标签 | 摘要 |`。
-   - 将新文章作为一行添加到对应主题的表格中，填写：
+##### 确定文章所属主题，按主题分区添加条目
+- **主题 = 内容所属领域**（如 "Obsidian"、"半导体 MES"、"知识库方法论"），由 LLM 根据文章内容自行识别
+- **类型 ≠ 主题**：类型是页面的结构属性（concept/entity/data/note/comparison/synthesis/case），在表格的"类型"列中填写；主题决定文章归入哪个分区
+- 在 index.md 的 `## <主题名>` 分区下添加条目：
+   - 若该主题分区不存在，则在统计区之前新建一个 `## <主题名>` 二级标题，附一行简短描述
+   - 在主题分区下维护表格，列头为：`| 页面 | 类型 | 标签 | 摘要 |`
+   - 将新文章作为一行添加到表格中，填写：
      - 页面：`[[文章标题]]`
-     - 类型：文章的 `type` 字段（如 `concept`、`entity`、`interface-spec` 等）
+     - 类型：文章的 frontmatter 中 `type` 字段的值
      - 标签：文章的 `tags`（用 `#` 前缀，多个空格分隔）
-     - 摘要：文章的一句简介（可从文章首段提取或手动填写）
+     - 摘要：文章的简介，两三句话概括
+
 
 #### 更新 `wiki/log.md`：
 - 操作

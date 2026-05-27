@@ -10,13 +10,13 @@ description: 结构化知识库（obsidian + karpathy）操作工具，作为摄
 
 **自动预处理：**
 
-执行 `./scripts/extract-audio.py <input> raw/extracted/<name>.txt`
+执行 `./scripts/extract-audio.py <文件>`，脚本会输出带时间戳的转录文本到 stdout。
 
-该脚本会自动检查并安装 `openai-whisper` 和 `ffmpeg`（如缺失），使用 OpenAI Whisper 将语音/视频转为带时间戳的文本。转换结果输出到 `raw/extracted/` 目录。
+该脚本会自动检查并安装 `openai-whisper` 和 `ffmpeg`（如缺失），使用 OpenAI Whisper 将语音/视频转为带时间戳的文本。
 
 支持的格式：`.mp3` `.wav` `.mp4` `.mov` `.avi` `.mkv` 等。
 
-脚本执行完成后，读取 `raw/extracted/<name>.txt` 中的转录文本，再按下方第1步继续处理。
+脚本执行完成后，按下方第1步继续处理。
 
 **注意：** Whisper 模型首次下载较大（base 模型约 142MB），处理长视频也较耗时。在执行脚本前告知用户预计等待时间。如需指定语言或模型大小，可使用脚本的 `--language zh` 和 `--model base` 参数。
 
